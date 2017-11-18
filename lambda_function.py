@@ -108,6 +108,8 @@ def set_color_in_session(intent, session):
 def get_bike_alert(intent):
     session_attributes = {}
     reprompt_text = None
+    tMin = []
+    rain = []
     URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-US"
     response = urllib.request.urlopen(URL)
     info = json.loads(response.read())
@@ -117,10 +119,7 @@ def get_bike_alert(intent):
     observation = json.loads(response_2.read())
     for dat in observation["data"]:
         tMin.append(dat["tempMin"])
-        tMax.append(dat["tempMax"])
         rain.append(dat["rain"])
-        snow.append(dat["snow"])
-        windSpeed.append(dat["forecastArr"])
     rVal = (float)(rain[0])
     tVal = (float)(tMin[0])
     if rVal > 1:
