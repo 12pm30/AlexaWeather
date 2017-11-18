@@ -121,8 +121,8 @@ def get_bike_alert(intent):
         rain.append(dat["rain"])
         snow.append(dat["snow"])
         windSpeed.append(dat["forecastArr"])
-    rVal = int(rain[0])
-    tVal = int(tMin[0])
+    rVal = (float)(rain[0])
+    tVal = (float)(tMin[0])
     if rVal > 1:
         speech_output = "London has chances of rain and I would recommend not to ride your bike today."
     elif tVal < 5:
