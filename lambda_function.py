@@ -169,7 +169,7 @@ def get_weather_by_date(intent):
     response = urllib.request.urlopen(data_ob)
     observation = json.loads(response.read())
     
-    speech_output = "The temperature in " + city +" is " + observation["data"]["temp"] + " degrees celsius."
+    speech_output = observation["speech"]
     should_end_session = True
 
     # Setting reprompt_text to None signifies that we do not want to reprompt
