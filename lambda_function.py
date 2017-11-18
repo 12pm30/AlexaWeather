@@ -108,7 +108,7 @@ def set_color_in_session(intent, session):
 def get_bike_alert(intent):
     session_attributes = {}
     reprompt_text = None
-    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov=ON&country=Canada&locale=en-US"
+    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-US"
     response = urllib.request.urlopen(URL)
     info = json.loads(response.read())
     #print (info["code"])
@@ -124,11 +124,11 @@ def get_bike_alert(intent):
     rVal = int(rain[0])
     tVal = int(tMin[0])
     if rVal > 1:
-        speech_output = intent['slots']['City']['value'] + " has chances of rain and I would recommend not to ride your bike today."
+        speech_output = "London has chances of rain and I would recommend not to ride your bike today."
     elif tVal < 5:
-        speech_output = intent['slots']['City']['value'] + " has a fairly low temperature and I would recommend not to ride your bike today."
+        speech_output = "London has a fairly low temperature and I would recommend not to ride your bike today."
     else:
-        speech_output = intent['slots']['City']['value'] + "has a good weather condition today so you can ride your bike today."
+        speech_output = "London has a good weather condition today so you can ride your bike today."
         
     should_end_session = True
 
