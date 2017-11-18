@@ -116,7 +116,7 @@ def get_weather_observation(intent):
     response = urllib.request.urlopen(data_ob)
     observation = json.loads(response.read())
     
-    speech_output = "The temperature in London is " + observation["data"]["temp"] + " degrees celsius."
+    speech_output = "The temperature in " + intent['slots']['City']['value'] +" is " + observation["data"]["temp"] + " degrees celsius."
     should_end_session = False
 
     # Setting reprompt_text to None signifies that we do not want to reprompt
@@ -193,7 +193,7 @@ def on_intent(intent_request, session):
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
     elif intent_name == "WeatherObservation":
-        return get_weather_observation()
+        return get_weather_observation(intent)
     else:
         raise ValueError("Invalid intent")
 
