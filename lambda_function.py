@@ -105,6 +105,25 @@ def set_color_in_session(intent, session):
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
+def get_weather_observation(intent):
+    session_attributes = {}
+    reprompt_text = None
+    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov=ON&country=Canada&locale=en-US"
+    response = urllib.request.urlopen(URL)
+    info = json.loads(response.read())
+    #print (info["code"])
+    data_ob = "https://hackathon.pic.pelmorex.com/api/data/observation?locationcode="+info["code"]
+    response = urllib.request.urlopen(data_ob)
+    observation = json.loads(response.read())
+    
+    speech_output = "The temperature in London is " + observation["data"]["temp"] + " degrees celsius."
+    should_end_session = False
+
+    # Setting reprompt_text to None signifies that we do not want to reprompt
+    # the user. If the user does not respond or says something that is not
+    # understood, the session will end.
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
 
 def get_color_from_session(intent, session):
     session_attributes = {}
@@ -173,6 +192,8 @@ def on_intent(intent_request, session):
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
+    elif intent_name == "WeatherObservation":
+        return get_weather_observation()
     else:
         raise ValueError("Invalid intent")
 
