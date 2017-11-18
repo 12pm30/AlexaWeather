@@ -138,6 +138,46 @@ def get_bike_alert(intent):
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
 
+def get_weather_by_date(intent):
+    session_attributes = {}
+    reprompt_text = None
+    speech_output = None
+    should_end_session = False
+    
+    print (intent)
+    print ((('value' in intent['slots']['City']) and ('value' in intent['slots']['Region']) and ('value' in intent['slots']['Country'])))
+    print ((('value' not in intent['slots']['City']) and ('value' not in intent['slots']['Region']) and ('value' not in intent['slots']['Country'])))
+    
+    if (('value' in intent['slots']['City']) and ('value' in intent['slots']['Region']) and ('value' in intent['slots']['Country'])):
+        city = intent['slots']['City']['value']
+        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov="+intent['slots']['Region']['value']+"&country="+intent['slots']['Country']['value']+"&locale=en-US"
+    elif (('value' not in intent['slots']['City']) and ('value' not in intent['slots']['Region']) and ('value' not in intent['slots']['Country'])):
+        city = "London"
+        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-US"
+    else:
+        speech_output = "Please specify the city, region and country together."
+                        
+        reprompt_text = "I'm not sure what place you are referring to. " \
+                        "You can ask me about the weather by saying, What is the weather in London Ontario Canada"
+        return build_response(session_attributes, build_speechlet_response(
+            intent['name'], speech_output, reprompt_text, should_end_session))
+    
+    response = urllib.request.urlopen(URL)
+    info = json.loads(response.read())
+    #print (info["code"])
+    data_ob = "https://hackathon.pic.pelmorex.com/api/weather/date/?locationcode="+info["code"]+"&date="+intent['slots']['Date']['value']+"&unit=C&locale=en-CA"
+    response = urllib.request.urlopen(data_ob)
+    observation = json.loads(response.read())
+    
+    speech_output = "The temperature in " + city +" is " + observation["data"]["temp"] + " degrees celsius."
+    should_end_session = True
+
+    # Setting reprompt_text to None signifies that we do not want to reprompt
+    # the user. If the user does not respond or says something that is not
+    # understood, the session will end.
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
 def get_weather_observation(intent):
     session_attributes = {}
     reprompt_text = None
@@ -249,6 +289,8 @@ def on_intent(intent_request, session):
         return get_weather_observation(intent)
     elif intent_name == "BikeAlert":
         return get_bike_alert(intent)
+    elif intent_name == "WeatherDate":
+        return get_weather_by_date(intent)
     else:
         raise ValueError("Invalid intent")
 
