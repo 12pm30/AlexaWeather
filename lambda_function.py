@@ -144,15 +144,18 @@ def get_weather_by_date(intent):
     speech_output = None
     should_end_session = False
     
-    print (intent)
-    print ((('value' in intent['slots']['City']) and ('value' in intent['slots']['Region']) and ('value' in intent['slots']['Country'])))
-    print ((('value' not in intent['slots']['City']) and ('value' not in intent['slots']['Region']) and ('value' not in intent['slots']['Country'])))
+    city = intent['slots']['City']
+    region = intent['slots']['Region']
+    country = intent['slots']['Country']
     
-    if (('value' in intent['slots']['City']) and ('value' in intent['slots']['Region']) and ('value' in intent['slots']['Country'])):
-        city = intent['slots']['City']['value']
-        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov="+intent['slots']['Region']['value']+"&country="+intent['slots']['Country']['value']+"&locale=en-US"
-    elif (('value' not in intent['slots']['City']) and ('value' not in intent['slots']['Region']) and ('value' not in intent['slots']['Country'])):
-        city = "London"
+    print (intent)
+    print ((('value' in city) and ('value' in region) and ('value' in country)))
+    print ((('value' not in city) and ('value' not in region) and ('value' not in country)))
+    
+    if (('value' in city) and ('value' in region) and ('value' in country)):
+        # Must replace spaces with "+"
+        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+city['value'].replace(" ","+")+"&prov="+region['value'].replace(" ","+")+"&country="+country['value'].replace(" ","+")+"&locale=en-US"
+    elif (('value' not in city) and ('value' not in region) and ('value' not in country)):
         URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-US"
     else:
         speech_output = "Please specify the city, region and country together."
@@ -184,15 +187,20 @@ def get_weather_observation(intent):
     speech_output = None
     should_end_session = False
     
-    print (intent)
-    print ((('value' in intent['slots']['City']) and ('value' in intent['slots']['Region']) and ('value' in intent['slots']['Country'])))
-    print ((('value' not in intent['slots']['City']) and ('value' not in intent['slots']['Region']) and ('value' not in intent['slots']['Country'])))
+    city = intent['slots']['City']
+    region = intent['slots']['Region']
+    country = intent['slots']['Country']
     
-    if (('value' in intent['slots']['City']) and ('value' in intent['slots']['Region']) and ('value' in intent['slots']['Country'])):
-        city = intent['slots']['City']['value']
-        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov="+intent['slots']['Region']['value']+"&country="+intent['slots']['Country']['value']+"&locale=en-US"
-    elif (('value' not in intent['slots']['City']) and ('value' not in intent['slots']['Region']) and ('value' not in intent['slots']['Country'])):
-        city = "London"
+    print (intent)
+    print ((('value' in city) and ('value' in region) and ('value' in country)))
+    print ((('value' not in city) and ('value' not in region) and ('value' not in country)))
+    
+    if (('value' in city) and ('value' in region) and ('value' in country)):
+        cityPhrase = city['value']
+        # Must replace spaces with "+"
+        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+city['value'].replace(" ","+")+"&prov="+region['value'].replace(" ","+")+"&country="+country['value'].replace(" ","+")+"&locale=en-US"
+    elif (('value' not in city) and ('value' not in region) and ('value' not in country)):
+        cityPhrase = "London"
         URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-US"
     else:
         speech_output = "Please specify the city, region and country together."
@@ -209,7 +217,7 @@ def get_weather_observation(intent):
     response = urllib.request.urlopen(data_ob)
     observation = json.loads(response.read())
     
-    speech_output = "The temperature in " + city +" is " + observation["data"]["temp"] + " degrees celsius."
+    speech_output = "The temperature in " + cityPhrase +" is " + observation["data"]["temp"] + " degrees celsius."
     should_end_session = True
 
     # Setting reprompt_text to None signifies that we do not want to reprompt
