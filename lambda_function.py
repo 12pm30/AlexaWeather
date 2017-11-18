@@ -154,12 +154,11 @@ def get_weather_observation(intent):
     # Use location['city'],location['region_code'],location['country_name']
     location = get_alexa_location()
     
-    if (intent['slots']['Region']['value'] != None){
+    if (intent['slots']['Region']['value'] != None):
         location['region_code'] = intent['slots']['Region']['value']
-    }
-    if (intent['slots']['Country']['value'] != None){
+    
+    if (intent['slots']['Country']['value'] != None):
         location['country_name'] = intent['slots']['Country']['value']
-    }
     
     URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov="+location['region_code']+"&country="+location['country_name']+"&locale=en-US"
     response = urllib.request.urlopen(URL)
