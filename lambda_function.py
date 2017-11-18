@@ -110,7 +110,28 @@ def get_bike_alert(intent):
     reprompt_text = None
     tMin = []
     rain = []
-    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-US"
+    
+    send_url = 'http://freegeoip.net/json'
+    r = requests.get(send_url)
+    j = json.loads(r.text)
+    ipState = j['region_code']
+    ipCon = j['country_name']
+    ipCity = j['city']
+    
+    #if (intent['slots']['State']['value'] == None){
+    #    state = ipState
+    #} else {
+    #    state = intent['slots']['State']['value']
+    #}
+    #
+    #if (intent['slots']['Country']['value'] == None){
+    #    country = ipCon
+    #} else {
+    #    country = intent['slots']['Country']['value']
+    #}
+    
+    
+    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=" + ipCity + "&prov=" + ipState + "&country=" + ipCon + "&locale=en-US"
     response = urllib.request.urlopen(URL)
     info = json.loads(response.read())
     #print (info["code"])
@@ -123,11 +144,11 @@ def get_bike_alert(intent):
     rVal = (float)(rain[0])
     tVal = (float)(tMin[0])
     if rVal > 1:
-        speech_output = "London has chances of rain and I would recommend not to ride your bike today."
+        speech_output = ipCity + " has chances of rain and I would recommend not to ride your bike today."
     elif tVal < 5:
-        speech_output = "London has a fairly low temperature and I would recommend not to ride your bike today."
+        speech_output = ipCity + " has a fairly low temperature and I would recommend not to ride your bike today."
     else:
-        speech_output = "London has a good weather condition today so you can ride your bike today."
+        speech_output = ipCity + " has a good weather condition today so you can ride your bike today."
         
     should_end_session = True
 
