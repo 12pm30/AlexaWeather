@@ -123,11 +123,11 @@ def get_bike_alert(intent):
     rVal = (float)(rain[0])
     tVal = (float)(tMin[0])
     if rVal > 1:
-        speech_output = "London has chances of rain and I would recommend not to ride your bike today."
+        speech_output = "London has chances of rain and I would recommend not to "+ intent['slots']['TranspoMethod']['value'] +". It might be better to take the car today."
     elif tVal < 5:
-        speech_output = "London has a fairly low temperature and I would recommend not to ride your bike today."
+        speech_output = "London has a fairly low temperature and I would recommend not to "+ intent['slots']['TranspoMethod']['value'] +". It might be better to take the car today."
     else:
-        speech_output = "London has a good weather condition today so you can ride your bike today."
+        speech_output = "London has a good weather condition today so you can "+ intent['slots']['TranspoMethod']['value'] +" today."
         
     should_end_session = True
 
