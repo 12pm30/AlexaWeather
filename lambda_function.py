@@ -10,6 +10,7 @@ http://amzn.to/1LGWsLG
 from __future__ import print_function
 import urllib.request
 import json
+from twilio.rest import Client
 
 # --------------- Helpers that build all of the responses ----------------------
 
@@ -104,6 +105,18 @@ def set_color_in_session(intent, session):
                         "my favorite color is red."
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
+
+def send_sms(toNumber):
+    # Find these values at https://twilio.com/user/account
+    account_sid = "ACa75631f2ff48457ae608c513ad1b5063"
+    auth_token = "cfb8a82fecaa3535de4fd52dab2b09c1"
+
+    client = Client(account_sid, auth_token)
+
+    client.messages.create(
+        to="+16476071664",
+        from_="+16136998144",
+        body="Hello there!")
 
 def get_bike_alert(intent):
     session_attributes = {}
