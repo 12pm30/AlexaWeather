@@ -105,22 +105,33 @@ def set_color_in_session(intent, session):
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
-def get_alexa_location():
-    send_url = 'http://freegeoip.net/json'
-    r = requests.get(send_url)
-    j = json.loads(r.text)
-    return j;
-
 def get_bike_alert(intent):
     session_attributes = {}
     reprompt_text = None
     tMin = []
     rain = []
     
-    # Use location['city'],location['region_code'],location['country_name']
-    location = get_alexa_location()
+    send_url = 'http://freegeoip.net/json'
+    r = requests.get(send_url)
+    j = json.loads(r.text)
+    ipState = j['region_code']
+    ipCon = j['country_name']
+    ipCity = j['city']
     
-    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=" + location['city'] + "&prov=" + location['region_code'] + "&country=" + location['country_name'] + "&locale=en-US"
+    #if (intent['slots']['State']['value'] == None){
+    #    state = ipState
+    #} else {
+    #    state = intent['slots']['State']['value']
+    #}
+    #
+    #if (intent['slots']['Country']['value'] == None){
+    #    country = ipCon
+    #} else {
+    #    country = intent['slots']['Country']['value']
+    #}
+    
+    
+    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=" + ipCity + "&prov=" + ipState + "&country=" + ipCon + "&locale=en-US"
     response = urllib.request.urlopen(URL)
     info = json.loads(response.read())
     #print (info["code"])
@@ -133,11 +144,11 @@ def get_bike_alert(intent):
     rVal = (float)(rain[0])
     tVal = (float)(tMin[0])
     if rVal > 1:
-        speech_output = location['city'] + " has chances of rain and I would recommend not to "+ intent['slots']['TranspoMethod']['value'] +". It might be better to take the car today."
+        speech_output = ipCity + " has chances of rain and I would recommend not to ride your bike today."
     elif tVal < 5:
-        speech_output = location['city'] + " has a fairly low temperature and I would recommend not to "+ intent['slots']['TranspoMethod']['value'] +". It might be better to take the car today."
+        speech_output = ipCity + " has a fairly low temperature and I would recommend not to ride your bike today."
     else:
-        speech_output = location['city'] + " has a good weather condition today so you can "+ intent['slots']['TranspoMethod']['value'] +" today."
+        speech_output = ipCity + " has a good weather condition today so you can ride your bike today."
         
     should_end_session = True
 
@@ -150,17 +161,7 @@ def get_bike_alert(intent):
 def get_weather_observation(intent):
     session_attributes = {}
     reprompt_text = None
-    
-    # Use location['city'],location['region_code'],location['country_name']
-    location = get_alexa_location()
-    
-    if (intent['slots']['Region']['value'] != None):
-        location['region_code'] = intent['slots']['Region']['value']
-    
-    if (intent['slots']['Country']['value'] != None):
-        location['country_name'] = intent['slots']['Country']['value']
-    
-    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov="+location['region_code']+"&country="+location['country_name']+"&locale=en-US"
+    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov=ON&country=Canada&locale=en-US"
     response = urllib.request.urlopen(URL)
     info = json.loads(response.read())
     #print (info["code"])
