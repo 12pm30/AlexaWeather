@@ -105,6 +105,39 @@ def set_color_in_session(intent, session):
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
+def get_bike_alert(intent):
+    session_attributes = {}
+    reprompt_text = None
+    URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+intent['slots']['City']['value']+"&prov=ON&country=Canada&locale=en-US"
+    response = urllib.request.urlopen(URL)
+    info = json.loads(response.read())
+    #print (info["code"])
+    data_ob = "https://hackathon.pic.pelmorex.com/api/data/shortterm?locationcode="+info["code"]
+    response_2 = urllib.request.urlopen(data_ob)
+    observation = json.loads(response_2.read())
+    for dat in observation["data"]:
+        tMin.append(dat["tempMin"])
+        tMax.append(dat["tempMax"])
+        rain.append(dat["rain"])
+        snow.append(dat["snow"])
+        windSpeed.append(dat["forecastArr"])
+    rVal = int(rain[0])
+    tVal = int(tMin[0])
+    if rVal > 1:
+        speech_output = intent['slots']['City']['value'] + " has chances of rain and I would recommend not to ride your bike today."
+    elif tVal < 5:
+        speech_output = intent['slots']['City']['value'] + " has a fairly low temperature and I would recommend not to ride your bike today."
+    else:
+        speech_output = intent['slots']['City']['value'] + "has a good weather condition today so you can ride your bike today."
+        
+    should_end_session = True
+
+    # Setting reprompt_text to None signifies that we do not want to reprompt
+    # the user. If the user does not respond or says something that is not
+    # understood, the session will end.
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
 def get_weather_observation(intent):
     session_attributes = {}
     reprompt_text = None
@@ -117,7 +150,7 @@ def get_weather_observation(intent):
     observation = json.loads(response.read())
     
     speech_output = "The temperature in " + intent['slots']['City']['value'] +" is " + observation["data"]["temp"] + " degrees celsius."
-    should_end_session = False
+    should_end_session = True
 
     # Setting reprompt_text to None signifies that we do not want to reprompt
     # the user. If the user does not respond or says something that is not
@@ -194,6 +227,8 @@ def on_intent(intent_request, session):
         return handle_session_end_request()
     elif intent_name == "WeatherObservation":
         return get_weather_observation(intent)
+    elif intent_name == "BikeAlert":
+        return get_bike_alert(intent)
     else:
         raise ValueError("Invalid intent")
 
