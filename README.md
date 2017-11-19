@@ -1,9 +1,9 @@
 # The Weather Network API integration with Amazon Echo (Alexa)
 
-##The Idea
+## The Idea
 An alexa skill set for using WeatherNetwork api.
 
-##Command Types
+## Command Types
 * Basic Weather: What is the weather?
 see sample commands [here](docs/README_Basic.md)
 * Weather by date: What is the weather on Thursday?
