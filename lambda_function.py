@@ -10,15 +10,9 @@ http://amzn.to/1LGWsLG
 from __future__ import print_function
 import urllib.request
 import json
-import matplotlib.pyplot as plt
 from twilio.rest import Client
 
 tel = {'johan': +16135522069, 'mitchell': +16478647115, 'parv': +16476071664}
-tMin = []
-tMax = []
-rain = []
-snow = []
-windSpeed = []
 # --------------- Helpers that build all of the responses ----------------------
 
 def build_speechlet_response(title, output, reprompt_text, should_end_session):
@@ -113,7 +107,7 @@ def set_color_in_session(intent, session):
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
-def send_mms(images, phoneName):
+def send_sms(information, phoneName):
     # Find these values at https://twilio.com/user/account
     account_sid = "ACa75631f2ff48457ae608c513ad1b5063"
     auth_token = "cfb8a82fecaa3535de4fd52dab2b09c1"
@@ -123,57 +117,8 @@ def send_mms(images, phoneName):
     client.messages.create(
         to=tel[phoneName.lower()],
         from_="+16136998144",
-        body=information,
-        media_url=[,])
+        body=information)
 
- def send_sms(information, phoneName):
-    # Find these values at https://twilio.com/user/account
-    account_sid = "ACa75631f2ff48457ae608c513ad1b5063"
-    auth_token = "cfb8a82fecaa3535de4fd52dab2b09c1"
-
-    client = Client(account_sid, auth_token)
-
-    client.messages.create(
-        to=tel[phoneName.lower()],
-        from_="+16136998144",
-        body="Please look at the images for all the information",
-        )
-    
-def makeTMin(tMin):
-    plt.plot(range(0,len(tMin),tMin)
-    plt.ylabel('Minimum Temperature (C)')
-    plt.xlabel('Day starting today')
-    plt.title("Minimum Temperature per day")
-    plt.savefig('/tmp/Temp_Min.png')
-
-def makeTMax(tMax):
-    plt.plot(range(0,len(tMax),tMax)
-    plt.ylabel('Maximum Temperature (C)')
-    plt.xlabel('Day starting today')
-    plt.title("Maximum Temperature per day")
-    plt.savefig('/tmp/Temp_Max.png')
-
-def makeRain(rain):
-    plt.plot(range(0,len(rain),rain)
-    plt.ylabel('Precipipation Level (mm)')
-    plt.xlabel('Day starting today')
-    plt.title("Precipitation Level per day")
-    plt.savefig('/tmp/Rain.png')
-             
-def makeSnow(snow):
-    plt.plot(range(0,len(snow),snow)
-    plt.ylabel('Snowfall (cm)')
-    plt.xlabel('Day starting today')
-    plt.title("Snowfall Level per day")
-    plt.savefig('/tmp/Snow.png')
-
-def makeWindSpeed(windSpeed):
-    plt.plot(range(0,len(windSpeed),windSpeed)
-    plt.ylabel('Wind Speed (km/h)')
-    plt.xlabel('Day starting today')
-    plt.title("Wind Speed per day")
-    plt.savefig('/tmp/WindSpeed.png')
-             
 def get_bike_alert(intent):
     session_attributes = {}
     reprompt_text = None
@@ -201,61 +146,6 @@ def get_bike_alert(intent):
         
     should_end_session = True
 
-    # Setting reprompt_text to None signifies that we do not want to reprompt
-    # the user. If the user does not respond or says something that is not
-    # understood, the session will end.
-    return build_response(session_attributes, build_speechlet_response(
-        intent['name'], speech_output, reprompt_text, should_end_session))
-
-def send_weather_images(intent):
-    session_attributes = {}
-    reprompt_text = None
-    speech_output = None
-    should_end_session = False
-    
-    city = intent['slots']['City']
-    region = intent['slots']['Region']
-    country = intent['slots']['Country']
-    
-    print (intent)
-    print ((('value' in city) and ('value' in region) and ('value' in country)))
-    print ((('value' not in city) and ('value' not in region) and ('value' not in country)))
-    
-    if (('value' in city) and ('value' in region) and ('value' in country)):
-        # Must replace spaces with "+"
-        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+city['value'].replace(" ","+")+"&prov="+region['value'].replace(" ","+")+"&country="+country['value'].replace(" ","+")+"&locale=en-US"
-    elif (('value' not in city) and ('value' not in region) and ('value' not in country)):
-        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-US"
-    else:
-        speech_output = "Please specify the city, region and country together."
-                        
-        reprompt_text = "I'm not sure what place you are referring to. " \
-                        "You can ask me about the weather by saying, What is the weather in London Ontario Canada"
-        return build_response(session_attributes, build_speechlet_response(
-            intent['name'], speech_output, reprompt_text, should_end_session))
-    
-    response = urllib.request.urlopen(URL)
-    info = json.loads(response.read())
-    #print (info["code"])
-    data_ob = "https://hackathon.pic.pelmorex.com/api/data/longterm?locationcode="+info["code"]
-    response = urllib.request.urlopen(data_ob)
-    observation = json.loads(response.read())
-    
-    for dat in observation["data"]:
-        tMin.append(dat["tempMin"])
-        tMax.append(dat["tempMax"])
-        rain.append(dat["rain"])
-        snow.append(dat["snow"])
-        windSpeed.append(dat["forecastArr"][0]['windSpeed'])
-    
-    makeTMin(tMin)
-    makeTMax(tMax)
-    makeRain(rain)
-    makeSnow(snow)
-    makeWindSpeed(windSpeed)
-    should_end_session = True
-    send_mms(speech_output, intent['slots']['PhoneName']['value'])
-    speech_output = "Sending MMS to "+ intent['slots']['PhoneName']['value'] +" containing the plots with the weather information for " + intent['slots']['City']['value]
     # Setting reprompt_text to None signifies that we do not want to reprompt
     # the user. If the user does not respond or says something that is not
     # understood, the session will end.
@@ -472,8 +362,6 @@ def on_intent(intent_request, session):
         return get_weather_by_date(intent)
     elif intent_name == "SendWeatherInfo":
         return send_weather_info(intent)
-    elif intent_name == "SendWeatherImages":
-        return send_weather_images(intent)
     else:
         raise ValueError("Invalid intent")
 
