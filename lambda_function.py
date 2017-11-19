@@ -12,7 +12,7 @@ import urllib.request
 import json
 from twilio.rest import Client
 
-tel = {'Johan': +16135522069, 'Mitchell': +16478647115, 'Parv': +16476071664}
+tel = {'johan': +16135522069, 'mitchell': +16478647115, 'parv': +16476071664}
 # --------------- Helpers that build all of the responses ----------------------
 
 def build_speechlet_response(title, output, reprompt_text, should_end_session):
@@ -115,7 +115,7 @@ def send_sms(information, phoneName):
     client = Client(account_sid, auth_token)
 
     client.messages.create(
-        to=tel[phoneName],
+        to=tel[phoneName.lower()],
         from_="+16136998144",
         body=information)
 
