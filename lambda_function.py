@@ -182,7 +182,10 @@ def send_weather_info(intent):
     response = urllib.request.urlopen(URL)
     info = json.loads(response.read())
     #print (info["code"])
-    data_ob = "https://hackathon.pic.pelmorex.com/api/weather/date/?locationcode="+info["code"]+"&date="+intent['slots']['Date']['value']+"&unit=C&locale=en-CA"
+    if('value' in intent['slots']['Date']):
+        data_ob = "https://hackathon.pic.pelmorex.com/api/weather/date/?locationcode="+info["code"]+"&date="+intent['slots']['Date']['value']+"&unit=C&locale=en-CA"
+    else:
+        data_ob = "https://hackathon.pic.pelmorex.com/api/weather/date/?locationcode="+info["code"]+"&unit=C&locale=en-CA"
     response = urllib.request.urlopen(data_ob)
     observation = json.loads(response.read())
     
