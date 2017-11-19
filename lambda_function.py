@@ -286,28 +286,58 @@ def get_weather_observation(intent):
     # understood, the session will end.
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
-
-def get_color_from_session(intent, session):
+        
+def get_weather_observation(intent):
     session_attributes = {}
     reprompt_text = None
-
-    if session.get('attributes', {}) and "favoriteColor" in session.get('attributes', {}):
-        favorite_color = session['attributes']['favoriteColor']
-        speech_output = "Your favorite color is " + favorite_color + \
-                        ". Goodbye."
-        should_end_session = True
+    speech_output = None
+    should_end_session = False
+    
+    city = intent['slots']['City']
+    region = intent['slots']['Region']
+    country = intent['slots']['Country']
+    
+    print (intent)
+    print ((('value' in city) and ('value' in region) and ('value' in country)))
+    print ((('value' not in city) and ('value' not in region) and ('value' not in country)))
+    
+    if (('value' in city) and ('value' in region) and ('value' in country)):
+        cityPhrase = city['value']
+        # Must replace spaces with "+"
+        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword="+city['value'].replace(" ","+")+"&prov="+region['value'].replace(" ","+")+"&country="+country['value'].replace(" ","+")+"&locale=en-US"
+    elif (('value' not in city) and ('value' not in region) and ('value' not in country)):
+        cityPhrase = "London"
+        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-US"
     else:
-        URL = "https://hackathon.pic.pelmorex.com/api/search/string?keyword=London&prov=ON&country=Canada&locale=en-CA"
-        response = urllib.request.urlopen(URL)
-        info = json.loads(response.read())
-        #print (info["code"])
-        data_ob = "https://hackathon.pic.pelmorex.com/api/data/observation?locationcode="+info["code"]
-        response_2 = urllib.request.urlopen(data_ob)
-        observation = json.loads(response_2.read())
+        speech_output = "Please specify the city, region and country together."
+                        
+        reprompt_text = "I'm not sure what place you are referring to. " \
+                        "You can ask me about the weather by saying, What is the weather in London Ontario Canada"
+        return build_response(session_attributes, build_speechlet_response(
+            intent['name'], speech_output, reprompt_text, should_end_session))
+    
+    response = urllib.request.urlopen(URL)
+    info = json.loads(response.read())
+    #print (info["code"])
+    data_ob = "https://hackathon.pic.pelmorex.com/api/data/observation?locationcode="+info["code"]
+    response = urllib.request.urlopen(data_ob)
+    observation = json.loads(response.read())
+    
+    speech_output = "The temperature in " + cityPhrase +" is " + observation["data"]["temp"] + " degrees celsius."
+    should_end_session = True
+
+    # Setting reprompt_text to None signifies that we do not want to reprompt
+    # the user. If the user does not respond or says something that is not
+    # understood, the session will end.
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+def champions(intent):
+    session_attributes = {}
+    reprompt_text = None
         
-        speech_output = "I'm not sure what your favorite color is. " \
-                        "You can say, my favorite color is red. The weather is in London is " + observation["data"]["temp"] + " degrees celcuis."
-        should_end_session = False
+    speech_output = "I was created by the team with the best use of the Weather Network API."
+    should_end_session = True
 
     # Setting reprompt_text to None signifies that we do not want to reprompt
     # the user. If the user does not respond or says something that is not
@@ -362,6 +392,8 @@ def on_intent(intent_request, session):
         return get_weather_by_date(intent)
     elif intent_name == "SendWeatherInfo":
         return send_weather_info(intent)
+    elif intent_name == "Champions":
+        return champions(intent)    
     else:
         raise ValueError("Invalid intent")
 
